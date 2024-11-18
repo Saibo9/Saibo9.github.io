@@ -1,0 +1,73 @@
+// game.js
+
+// Variabelen voor het spelbord en de status
+let currentPlayer = 'X';
+let gameBoard = ['', '', '', '', '', '', '', '', ''];
+let gameOver = false;
+
+// Referentie naar HTML-elementen
+const cells = document.querySelectorAll('.cell');
+const resetButton = document.getElementById('resetButton');
+const statusText = document.getElementById('status');
+
+// Functie om het bord opnieuw in te stellen
+function resetGame() {
+    gameBoard = ['', '', '', '', '', '', '', '', ''];
+    gameOver = false;
+    currentPlayer = 'X';
+    statusText.textContent = "Speler X begint!";
+    cells.forEach(cell => {
+        cell.textContent = '';
+        cell.style.pointerEvents = 'auto';
+    });
+}
+
+// Functie om een zet te doen
+function makeMove(index) {
+    if (gameBoard[index] === '' && !gameOver) {
+        gameBoard[index] = currentPlayer;
+        cells[index].textContent = currentPlayer;
+        cells[index].style.pointerEvents = 'none'; // Blokkeer de cel na een zet
+
+        // Controleer of de speler heeft gewonnen
+        if (checkWinner()) {
+            gameOver = true;
+            statusText.textContent = `Speler ${currentPlayer} wint!`;
+        } else if (gameBoard.every(cell => cell !== '')) {
+            gameOver = true;
+            statusText.textContent = 'Het is een gelijkspel!';
+        } else {
+            // Wissel van speler
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            statusText.textContent = `Speler ${currentPlayer} is aan de beurt!`;
+        }
+    }
+}
+
+// Functie om te controleren of er een winnaar is
+function checkWinner() {
+    const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontaal
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Verticaal
+        [0, 4, 8], [2, 4, 6]             // Diagonaal
+    ];
+
+    for (let pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Voeg event listeners toe aan de cellen
+cells.forEach((cell, index) => {
+    cell.addEventListener('click', () => makeMove(index));
+});
+
+// Voeg een event listener toe voor de resetknop
+resetButton.addEventListener('click', resetGame);
+
+// Start het eerste spel
+resetGame();
